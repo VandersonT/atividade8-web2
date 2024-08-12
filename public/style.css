@@ -1,0 +1,60 @@
+:root {
+    --beige: #f5f5dc; 
+    --cinza: #dcdcdc;
+    --nude: #e3bda2;
+    --marrom: #df7128;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--beige);
+    margin: 0;
+    padding: 0;
+}
+
+button {
+    background-color: var(--nude);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #c49b83; 
+}
+
+form {
+    padding: 10px;
+    border-radius: 4px;
+}
+
+input[type="text"], input[type="number"] {
+    padding: 2px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+}
+
+table {
+    width: 90%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: var(--nude);
+}
+
+tbody tr:nth-child(even) {
+    background-color: var(--cinza);
+}
+
+tbody tr:hover {
+    background-color: #e1d6d1; /* Tom mais escuro que o fundo */
+}

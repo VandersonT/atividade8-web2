@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Livros</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Gerenciamento de Livros</h1>
+    <button onclick="showAddBookForm()">Adicionar Novo Livro</button>
+    
+    <div id="addBookForm" style="display: none;">
+        <h2>Adicionar Livro</h2>
+        <form id="formAddBook">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" required><br>
+
+            <label for="ano_publicacao">Ano de Publicação:</label>
+            <input type="number" id="ano_publicacao" required><br>
+
+            <label for="categoria">Categoria:</label>
+            <input type="text" id="categoria" required><br>
+
+            <label for="altor">Altor:</label>
+            <input type="text" id="altor" required><br>
+
+            <button type="submit">Salvar</button>
+        </form>
+    </div>
+
+    <div id="editBookForm" style="display: none;">
+        <h2>Editar Livro</h2>
+        <form id="formEditBook">
+            <input type="hidden" id="editBookId">
+
+            <label for="editTitulo">Título:</label>
+            <input type="text" id="editTitulo" required><br>
+
+            <label for="editAnoPublicacao">Ano de Publicação:</label>
+            <input type="number" id="editAnoPublicacao" required><br>
+
+            <label for="editCategoria">Categoria:</label>
+            <input type="text" id="editCategoria" required><br>
+
+            <label for="editAltor">Altor:</label>
+            <input type="text" id="editAltor" required><br>
+
+            <button type="submit">Salvar</button>
+        </form>
+    </div>
+    
+    <h2>Lista de Livros</h2>
+    <table id="booksTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Ano de Publicação</th>
+                <th>Categoria</th>
+                <th>Altor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadBooks);
+
+        function showAddBookForm() {
+            document.getElementById('addBookForm').style.display = 'block';
+            document.getElementById('editBookForm').style.display = 'none';
+        }
+
+        function showEditBookForm() {
+            document.getElementById('editBookForm').style.display = 'block';
+            document.getElementById('addBookForm').style.display = 'none';
+        }
+
+        document.getElementById('formAddBook').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('titulo').value;
+            const ano_publicacao = document.getElementById('ano_publicacao').value;
+            const categoria = document.getElementById('categoria').value;
+            const altor = document.getElementById('altor').value;
+
+            await fetch('/livros', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, ano_publicacao, categoria, altor })
+            });
+            
+            hideAddBookForm();
+            loadBooks();
+        });
+
+        document.getElementById('formEditBook').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editBookId').value;
+            const titulo = document.getElementById('editTitulo').value;
+            const ano_publicacao = document.getElementById('editAnoPublicacao').value;
+            const categoria = document.getElementById('editCategoria').value;
+            const altor = document.getElementById('editAltor').value;
+
+            await fetch('/livros', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, titulo, ano_publicacao, categoria, altor })
+            });
+
+            hideEditBookForm();
+            loadBooks();
+        });
+
+        function hideAddBookForm() {
+            document.getElementById('addBookForm').style.display = 'none';
+        }
+
+        function hideEditBookForm() {
+            document.getElementById('editBookForm').style.display = 'none';
+        }
+
+        async function loadBooks() {
+            const response = await fetch('/livros');
+            const books = await response.json();
+            const tbody = document.getElementById('booksTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            books.forEach(book => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = book.id;
+                row.insertCell(1).textContent = book.titulo;
+                row.insertCell(2).textContent = book.ano_publicacao;
+                row.insertCell(3).textContent = book.categoria;
+                row.insertCell(4).textContent = book.altor;
+                const actionsCell = row.insertCell(5);
+                actionsCell.innerHTML = `
+                    <button onclick="editBook(${book.id})">Editar</button>
+                    <button onclick="deleteBook(${book.id})">Deletar</button>
+                `;
+            });
+        }
+
+        async function deleteBook(id) {
+            await fetch('/livros', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            loadBooks();
+        }
+
+        async function editBook(id) {
+            const response = await fetch(`/livros/${id}`);
+            const book = await response.json();
+            
+            document.getElementById('editBookId').value = book.id;
+            document.getElementById('editTitulo').value = book.titulo;
+            document.getElementById('editAnoPublicacao').value = book.ano_publicacao;
+            document.getElementById('editCategoria').value = book.categoria;
+            document.getElementById('editAltor').value = book.altor;
+
+            showEditBookForm();
+        }
+    </script>
+</body>
+</html>
